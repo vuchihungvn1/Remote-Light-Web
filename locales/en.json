@@ -1,0 +1,16 @@
+{
+  "titleDesktop": "Computer being controlled",
+  "titlePhone": "Remote control",
+  "statusIdle": "Not connected",
+  "signIn": "Sign in",
+  "signUp": "Create account",
+  "pairCopy": "Copy code",
+  "pairNew": "New code",
+  "launcher": "Desktop launcher",
+  "session": "Current session",
+  "permissions": "Control permissions",
+  "activity": "Activity log",
+  "settings": "Quick settings",
+  "safety": "Only connect to computers you own or trust."
+}
+
