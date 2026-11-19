@@ -239,7 +239,7 @@ async function measureTwoFingerScroll(page, context, host, supported) {
     const phone = await context.newPage();
     const errors = [];
     phone.on('pageerror', error => errors.push(error.message));
-    await phone.goto(base + '/?pair=' + pairCode, { waitUntil: 'domcontentloaded' });
+    await phone.goto(base + '/?pair=' + pairCode + '&lang=vi', { waitUntil: 'domcontentloaded' });
     const ready = () => phone.waitForFunction(() => !document.querySelector('#authorize').disabled);
     const grant = async () => {
       await phone.locator('#authorize').click();
