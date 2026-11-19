@@ -1,5 +1,5 @@
 const CHANNELS = {
-  fast: { ordered: false, maxRetransmits: 0 },
+  fast: { ordered: false, maxPacketLifeTime: 35 },
   reliable: { ordered: true },
   meta: { ordered: true },
   bulk: { ordered: true },
@@ -9,7 +9,7 @@ const OPCODES = { MOVE_REL: 0x01, BTN: 0x03, KEY: 0x05, TEXT: 0x06, RELEASE_ALL:
 const MAX_CLIPBOARD_BYTES = 5 * 1024 * 1024;
 const MAX_FILE_CHUNK_BYTES = 16 * 1024 - 12;
 const MAX_FILE_NAME_BYTES = 120;
-const MAX_BUFFERED_BYTES = { fast: 64 * 1024, reliable: 256 * 1024, meta: 256 * 1024, bulk: 512 * 1024 };
+const MAX_BUFFERED_BYTES = { fast: 128, reliable: 256 * 1024, meta: 256 * 1024, bulk: 512 * 1024 };
 
 export function encodeRecord(opcode, payload) {
   const data = payload instanceof Uint8Array ? payload : new Uint8Array(payload);
@@ -257,6 +257,12 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
       await peer.setLocalDescription(offer);
       onSignal({ type: 'pair_offer', description: peer.localDescription });
       return peer.localDescription;
+    },
+    async restartIce() {
+      if (peer.signalingState === 'closed') return;
+      const offer = await peer.createOffer({ iceRestart: true });
+      await peer.setLocalDescription(offer);
+      onSignal({ type: 'pair_offer', description: peer.localDescription });
     },
     async acceptAnswer(description) {
       await peer.setRemoteDescription(description);

@@ -2,14 +2,14 @@
 <html lang="vi">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
     <meta name="theme-color" content="#0b1020">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://br-holy-leaf-b39m40ce-api.compute.c-4.ap-southeast-1.aws.neon.tech https://ep-dawn-feather-b33fgmvy.neonauth.c-4.ap-southeast-1.aws.neon.tech wss://br-holy-leaf-b39m40ce-signal.compute.c-4.ap-southeast-1.aws.neon.tech; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types default">
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
-    <link rel="modulepreload" href="./assets/rtc-BLAw8nTj.js" integrity="sha384-K/+pad33L2fC6AMH7fuJkxwoRoD6d2YOL9m9s8xefmEB9T+JNMhFhchtFCKVIUX5" crossorigin="anonymous">
+    <link rel="modulepreload" href="./assets/rtc-fJdmO2EF.js" integrity="sha384-KK52qiqIUeFHX6yoPwcDB3dMOUGp1mcDehwj6bUldgYCKR2i7pQEeEZeoisR21Aw" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-CAo_6PBB.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BAXlnxDx.css">
+    <script type="module" crossorigin src="./assets/index-BU5HktYR.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DbyfEFOm.css">
   </head>
   <body>
     <main class="app-shell">
@@ -38,16 +38,13 @@
       </header>
 
       <p id="status" class="status" role="status" aria-live="polite">Chưa kết nối</p>
-      <nav class="steps" aria-label="Tiến trình kết nối">
-        <span>1. Ghép nối</span><span>2. Xác nhận trên PC</span><span>3. Điều khiển</span>
-      </nav>
 
       <aside id="pair-login-notice" class="pair-login-notice warning" hidden>
         <p>Lần đầu kết nối? Đăng nhập cùng tài khoản với PC để lưu thiết bị. Bạn vẫn có thể kết nối tạm thời mà không cần đăng nhập.</p>
         <button id="pair-login-button" class="secondary" type="button">Đăng nhập cùng tài khoản</button>
       </aside>
 
-      <section id="auth-panel" class="card auth-card" aria-label="Đăng nhập">
+      <section id="auth-panel" class="card auth-card" aria-label="Đăng nhập" hidden>
         <button id="auth-close" class="auth-close" type="button" aria-label="Đóng" hidden>×</button>
         <div class="card-heading"><span class="icon">◎</span><div><h2>Tài khoản</h2><p>Đăng nhập để lưu các máy tính đã ghép nối. Có thể bỏ qua để dùng một phiên tạm thời.</p></div></div>
         <p id="auth-feedback" class="auth-feedback" role="status" hidden></p>
@@ -78,7 +75,7 @@
 
       <section id="control-panel" class="card control-card" aria-label="Điều khiển từ xa" hidden>
         <div class="control-heading">
-          <div><h2>Điều khiển</h2><p id="connection-detail">Đang chờ PC xác nhận</p></div>
+          <div><h2>Bàn di chuột</h2><p id="connection-detail">Đang chờ PC xác nhận</p></div>
           <button id="authorize" class="primary" type="button" disabled>Cho phép điều khiển</button>
         </div>
         <section id="pad" aria-label="Touchpad điều khiển chuột" tabindex="0">
@@ -88,14 +85,17 @@
         <div class="control-toolbar" aria-label="Điều khiển chuột">
           <button type="button" data-mouse="1">Chuột trái</button><button type="button" data-mouse="3">Chuột giữa</button><button type="button" data-mouse="2">Chuột phải</button>
         </div>
-        <label class="keyboard-label" for="text-input">Gửi văn bản
-          <textarea id="text-input" rows="2" maxlength="1024" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Nhập văn bản" placeholder="Nhập văn bản trên máy tính..."></textarea>
-        </label>
-        <button id="send-text" class="secondary send-text" type="button">Gửi văn bản</button>
+        <details class="keyboard-panel">
+          <summary>Bàn phím</summary>
+          <label class="keyboard-label" for="text-input">Gửi văn bản
+            <textarea id="text-input" rows="2" maxlength="1024" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Nhập nội dung..."></textarea>
+          </label>
+          <button id="send-text" class="secondary send-text" type="button">Gửi văn bản</button>
+        </details>
+        <a class="new-pair" href="./">Ghép nối máy khác</a>
       </section>
 
       <p id="safety-warning" class="warning safety-warning">Chỉ kết nối với máy bạn sở hữu hoặc người bạn tin cậy.</p>
     </main>
   </body>
 </html>
-
