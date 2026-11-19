@@ -1,27 +1,88 @@
 <!doctype html>
 <html lang="vi">
-    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#111827"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' http://127.0.0.1:* https://br-holy-leaf-b39m40ce-api.compute.c-4.ap-southeast-1.aws.neon.tech https://ep-dawn-feather-b33fgmvy.neonauth.c-4.ap-southeast-1.aws.neon.tech wss://br-holy-leaf-b39m40ce-signal.compute.c-4.ap-southeast-1.aws.neon.tech ws://localhost:* ws://127.0.0.1:*; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types default"><link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest"><link rel="modulepreload" href="./assets/rtc-Dk90aKTo.js" integrity="sha384-478BGXpJR/h+8svpxp/4z/ewQsR3G2UHwAyRHX0cmmbvynWWg9m6JzB60vZLI4wh" crossorigin="anonymous"><title>Remote Light</title>  <script type="module" crossorigin src="./assets/index-BRDQTCoU.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DKnEtfBA.css">
-</head>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#0b1020">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://br-holy-leaf-b39m40ce-api.compute.c-4.ap-southeast-1.aws.neon.tech https://ep-dawn-feather-b33fgmvy.neonauth.c-4.ap-southeast-1.aws.neon.tech wss://br-holy-leaf-b39m40ce-signal.compute.c-4.ap-southeast-1.aws.neon.tech; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types default">
+    <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
+    <link rel="modulepreload" href="./assets/rtc-Dk90aKTo.js" integrity="sha384-478BGXpJR/h+8svpxp/4z/ewQsR3G2UHwAyRHX0cmmbvynWWg9m6JzB60vZLI4wh" crossorigin="anonymous">
+    <title>Remote Light · Điều khiển</title>
+    <script type="module" crossorigin src="./assets/index-DtEcdY_2.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BStY1dMe.css">
+  </head>
   <body>
     <main class="app-shell">
-      <header class="topbar"><div><span class="eyebrow">REMOTE LIGHT</span><h1 id="page-title">Điều khiển máy tính</h1></div><div class="topbar-actions"><nav aria-label="Chế độ thiết bị"><a href="./?mode=desktop" data-mode-link="desktop">Máy tính</a><a href="./?mode=phone" data-mode-link="phone">Điện thoại</a></nav><button id="account-chip" class="account-chip" type="button" aria-expanded="false"><span class="account-avatar">?</span><span id="account-chip-label">Tài khoản</span></button></div></header>
-      <p id="status" class="status" role="status">Chưa kết nối</p>
-      <section class="steps" aria-label="Tiến trình"><span data-step="1">1. Đăng nhập</span><span data-step="2">2. Kết nối</span><span data-step="3">3. Hoàn tất</span></section>
-      <section id="auth-panel" class="card auth-card" aria-label="Đăng nhập"><div class="card-heading"><span class="icon">◎</span><div><h2>Đăng nhập</h2><p>Dùng tài khoản Remote Light của bạn.</p></div></div><div class="form-grid"><label>Email<input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com"></label><label>Mật khẩu<input id="auth-password" type="password" autocomplete="current-password" placeholder="Tối thiểu 8 ký tự"></label></div><div class="actions"><button id="sign-in" class="primary" type="button">Đăng nhập</button><button id="sign-up" class="secondary" type="button">Tạo tài khoản</button></div></section>
-      <section id="account-panel" class="card account-card" aria-label="Tài khoản" hidden><div class="card-heading"><span class="icon">●</span><div><h2>Tài khoản</h2><p id="account-status">Đã đăng nhập</p></div></div><div class="account-identity"><strong id="account-name">—</strong><span id="account-email">—</span></div><button id="sign-out" class="secondary" type="button">Đăng xuất</button></section>
-      <div id="desktop-dashboard" class="desktop-dashboard">
-      <section id="desktop-panel" class="card role-card" aria-label="Máy tính"><div class="card-heading"><span class="icon">▣</span><div><h2>Máy tính này</h2><p>Mở launcher trên PC để tạo phiên ghép đôi.</p></div></div><div class="pair-display"><span>Mã ghép đôi</span><strong id="pair-code-display">— — — — — —</strong><small id="pair-expiry">Mã chỉ có hiệu lực trong thời gian ngắn.</small><div id="qr-code" aria-label="Mã QR ghép đôi" hidden></div><div class="pair-actions"><button id="copy-code" class="secondary" type="button">Sao chép mã</button><button id="toggle-qr" class="secondary" type="button" aria-expanded="false">Hiện QR</button><button id="regenerate-code" class="secondary" type="button">Tạo mã mới</button></div></div><button id="connect" class="primary">Tạo phiên kết nối</button></section>
-      <section id="launcher-card" class="card dashboard-card" aria-label="Trạng thái launcher"><div class="dashboard-heading"><div><h2>Launcher trên máy tính</h2><p>Ứng dụng chạy nền để bảo vệ và chuyển lệnh điều khiển.</p></div><span id="launcher-badge" class="badge badge-warn">Chưa kiểm tra</span></div><div class="dashboard-row"><span id="launcher-detail">Chưa kiểm tra kết nối cục bộ.</span><div class="launcher-actions"><a id="download-launcher" class="secondary button-link" href="https://github.com/vuchihungvn1/Remote-Light-Web/releases/download/launcher-v2.0.0-beta.2/RemoteLight-Windows-v2-beta2.zip" target="_blank" rel="noreferrer">Tải bản thử Windows</a><button id="check-launcher" class="secondary" type="button">Kiểm tra lại</button></div></div></section>
-      <section id="session-card" class="card dashboard-card" aria-label="Trạng thái phiên"><div class="dashboard-heading"><div><h2>Phiên hiện tại</h2><p id="session-device">Chưa có điện thoại kết nối</p></div><span id="session-badge" class="badge badge-muted">Chưa kết nối</span></div><div class="metrics"><div><span>Ping</span><strong id="session-ping">—</strong></div><div><span>Thời gian</span><strong id="session-duration">—</strong></div><div><span>Kênh</span><strong id="session-channel">—</strong></div></div><button id="emergency-disconnect" class="danger" type="button" disabled>Ngắt kết nối khẩn cấp</button></section>
-      <section id="permissions-card" class="card dashboard-card" aria-label="Quyền điều khiển"><div class="dashboard-heading"><div><h2>Quyền điều khiển</h2><p>Chỉ cấp những quyền thật sự cần thiết.</p></div></div><div class="permission-grid"><label><input type="checkbox" data-permission="pointer"> Chuột và cuộn</label><label><input type="checkbox" data-permission="keyboard"> Bàn phím</label><label><input type="checkbox" data-permission="shortcuts"> Phím tắt hệ thống</label><label><input type="checkbox" data-permission="clipboard"> Clipboard</label><label><input type="checkbox" data-permission="media"> Âm lượng / media</label><label><input type="checkbox" data-permission="screen"> Xem màn hình</label></div><div class="dashboard-row"><label class="duration-label">Thời hạn<select id="permission-duration"><option value="900000">15 phút</option><option value="3600000">1 giờ</option><option value="0">Đến khi ngắt</option></select></label><button id="save-permissions" class="primary" type="button">Lưu quyền</button></div></section>
-      <section id="activity-card" class="card dashboard-card" aria-label="Nhật ký hoạt động"><div class="dashboard-heading"><div><h2>Nhật ký hoạt động</h2><p>Không lưu nội dung văn bản hoặc clipboard.</p></div><div class="actions"><button id="export-activity" class="secondary" type="button">Xuất CSV</button><button id="clear-activity" class="secondary" type="button">Xóa</button></div></div><ol id="activity-log" class="activity-log"><li>Chưa có hoạt động.</li></ol></section>
-      <section id="settings-card" class="card dashboard-card" aria-label="Cài đặt nhanh"><div class="dashboard-heading"><div><h2>Cài đặt nhanh</h2><p>Tuỳ chỉnh chỉ được lưu trên thiết bị này.</p></div></div><div class="settings-grid"><label>Ngôn ngữ<select id="language-select"><option value="vi">Tiếng Việt</option><option value="en">English</option></select></label><label>Giao diện<select id="theme-select"><option value="dark">Tối</option><option value="light">Sáng</option><option value="system">Theo hệ thống</option></select></label></div></section>
-      </div>
-      <section id="phone-panel" class="card role-card" aria-label="Điện thoại"><div class="card-heading"><span class="icon">◉</span><div><h2>Kết nối máy tính</h2><p>Nhập mã hiển thị trên màn hình máy tính.</p></div></div><label>Mã ghép đôi<input id="pair-code-input" inputmode="numeric" maxlength="6" placeholder="000000"></label><button id="connect-phone" class="primary" type="button">Kết nối máy tính</button></section>
-      <section id="control-panel" class="card control-card" aria-label="Điều khiển"><div class="control-heading"><div><h2>Điều khiển</h2><p id="connection-detail">Chưa có thiết bị</p></div><button id="authorize" class="primary" type="button" disabled>Cho phép điều khiển</button></div><div class="control-toolbar"><button type="button" data-mouse="1">Chuột trái</button><button type="button" data-mouse="3">Chuột giữa</button><button type="button" data-mouse="2">Chuột phải</button><button type="button" id="scroll-up">Cuộn lên</button><button type="button" id="scroll-down">Cuộn xuống</button></div><section id="pad" aria-label="Touchpad" tabindex="0"></section><label class="keyboard-label" for="text-input">Bàn phím</label><textarea id="text-input" rows="2" maxlength="1024" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Nhập văn bản" placeholder="Nhập văn bản trên máy tính..."></textarea></section>
-      <p id="safety-warning" class="warning" role="alert">Chỉ kết nối với máy bạn sở hữu hoặc người bạn tin cậy.</p>
-      <dialog id="approval-dialog" class="approval-dialog" aria-labelledby="approval-title"><form method="dialog"><h2 id="approval-title">Yêu cầu điều khiển mới</h2><p id="approval-detail">Một thiết bị đang yêu cầu quyền điều khiển.</p><p id="approval-countdown" class="approval-countdown">Tự từ chối sau 30 giây</p><div class="actions"><button id="deny-approval" class="secondary" value="deny">Từ chối</button><button id="approve-approval" class="primary" value="approve">Duyệt kết nối</button></div></form></dialog>
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">REMOTE LIGHT</span>
+          <h1 id="page-title">Điều khiển máy tính</h1>
+        </div>
+        <button id="account-chip" class="account-chip" type="button" aria-expanded="false" aria-controls="account-panel">
+          <span class="account-avatar">?</span>
+          <span id="account-chip-label">Tài khoản</span>
+        </button>
+        <section id="account-panel" class="account-menu card" aria-label="Tài khoản" hidden>
+          <div class="account-identity">
+            <strong id="account-name"></strong>
+            <span id="account-email"></span>
+          </div>
+          <label class="compact-setting" for="language-select">Ngôn ngữ
+            <select id="language-select"><option value="vi">Tiếng Việt</option><option value="en">English</option></select>
+          </label>
+          <label class="compact-setting" for="theme-select">Giao diện
+            <select id="theme-select"><option value="dark">Tối</option><option value="light">Sáng</option><option value="system">Theo hệ thống</option></select>
+          </label>
+          <button id="sign-out" class="secondary" type="button">Đăng xuất</button>
+        </section>
+      </header>
+
+      <p id="status" class="status" role="status" aria-live="polite">Chưa kết nối</p>
+      <nav class="steps" aria-label="Tiến trình kết nối">
+        <span>1. Ghép nối</span><span>2. Xác nhận trên PC</span><span>3. Điều khiển</span>
+      </nav>
+
+      <aside id="pair-login-notice" class="pair-login-notice warning" hidden>
+        <p>Lần đầu kết nối? Đăng nhập cùng tài khoản với PC để lưu thiết bị. Bạn vẫn có thể kết nối tạm thời mà không cần đăng nhập.</p>
+        <button id="pair-login-button" class="secondary" type="button">Đăng nhập cùng tài khoản</button>
+      </aside>
+
+      <section id="auth-panel" class="card auth-card" aria-label="Đăng nhập">
+        <div class="card-heading"><span class="icon">◎</span><div><h2>Tài khoản</h2><p>Đăng nhập để lưu các máy tính đã ghép nối. Có thể bỏ qua để dùng một phiên tạm thời.</p></div></div>
+        <div class="form-grid">
+          <label for="auth-email">Email<input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com"></label>
+          <label for="auth-password">Mật khẩu<input id="auth-password" type="password" autocomplete="current-password" placeholder="Tối thiểu 8 ký tự"></label>
+        </div>
+        <div class="actions"><button id="sign-in" class="primary" type="button">Đăng nhập</button><button id="sign-up" class="secondary" type="button">Tạo tài khoản</button></div>
+      </section>
+
+      <section id="phone-panel" class="card pair-card" aria-label="Ghép nối máy tính">
+        <div class="card-heading"><span class="icon">▦</span><div><h2>Kết nối máy tính</h2><p>Quét mã QR trên ứng dụng Remote Light ở PC, hoặc nhập mã 6 số.</p></div></div>
+        <form id="pair-form" class="pair-form">
+          <label for="pair-code-input">Mã ghép đôi<input id="pair-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></label>
+          <button id="connect-phone" class="primary" type="submit">Kết nối</button>
+        </form>
+      </section>
+
+      <section id="control-panel" class="card control-card" aria-label="Điều khiển từ xa" hidden>
+        <div class="control-heading">
+          <div><h2>Điều khiển</h2><p id="connection-detail">Đang chờ PC xác nhận</p></div>
+          <button id="authorize" class="primary" type="button" disabled>Cho phép điều khiển</button>
+        </div>
+        <section id="pad" aria-label="Touchpad điều khiển chuột" tabindex="0">
+          <span>Di chuyển ngón tay để rê chuột</span>
+          <small>Chạm để bấm · Giữ để rê</small>
+        </section>
+        <div class="control-toolbar" aria-label="Điều khiển chuột">
+          <button type="button" data-mouse="1">Chuột trái</button><button type="button" data-mouse="3">Chuột giữa</button><button type="button" data-mouse="2">Chuột phải</button>
+        </div>
+        <label class="keyboard-label" for="text-input">Gửi văn bản
+          <textarea id="text-input" rows="2" maxlength="1024" inputmode="text" autocomplete="off" spellcheck="false" aria-label="Nhập văn bản" placeholder="Nhập văn bản trên máy tính..."></textarea>
+        </label>
+        <button id="send-text" class="secondary send-text" type="button">Gửi văn bản</button>
+      </section>
+
+      <p id="safety-warning" class="warning safety-warning">Chỉ kết nối với máy bạn sở hữu hoặc người bạn tin cậy.</p>
     </main>
   </body>
 </html>

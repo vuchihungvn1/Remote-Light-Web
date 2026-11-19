@@ -1,4 +1,4 @@
-const CACHE = 'remote-light-shell-v3';
+const CACHE = 'remote-light-shell-v4-phone-only';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', event => {
