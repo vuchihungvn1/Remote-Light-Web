@@ -1,4 +1,4 @@
-const CACHE = 'remote-light-shell-v8-pair-retry';
+const CACHE = 'remote-light-shell-v9-reconnect';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', event => {
