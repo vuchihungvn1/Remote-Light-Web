@@ -1,5 +1,5 @@
 const assert = require('node:assert/strict');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawn } = require('node:child_process');
 const { once } = require('node:events');
 const { readFileSync } = require('node:fs');
 const http = require('node:http');
@@ -9,6 +9,10 @@ const { chromium, devices } = require('playwright');
 const { WebSocket, WebSocketServer } = require('ws');
 
 const pairCode = '462513';
+const nativeAgent = process.env.RL_TEST_AGENT;
+if (nativeAgent && (process.env.GITHUB_ACTIONS !== 'true' || process.env.RL_RUNNER_ENVIRONMENT !== 'github-hosted')) {
+  throw new Error('The native test runs on a hosted Actions desktop');
+}
 const types = { html: 'text/html', js: 'text/javascript', css: 'text/css', webmanifest: 'application/manifest+json' };
 const sockets = new Map();
 let base;
@@ -16,6 +20,10 @@ let claims = 0;
 let phoneConnections = 0;
 const server = http.createServer((request, response) => {
   const { pathname } = new URL(request.url, base);
+  if (nativeAgent && request.method === 'POST' && pathname === '/v1/pair') {
+    const pair = { pairCode, expiresAt: new Date(Date.now() + 120000).toISOString(), expiresInSeconds: 120 };
+    return response.writeHead(201, { 'content-type': 'application/json' }).end(JSON.stringify(pair));
+  }
   if (request.method === 'POST' && pathname === '/v1/pair/claim') {
     if (claims++) return response.writeHead(404).end();
     return response.writeHead(200, { 'content-type': 'application/json' }).end('{"ok":true}');
@@ -50,6 +58,39 @@ relay.on('connection', (socket, request) => {
 
 function netem(...args) {
   execFileSync('sudo', ['tc', 'qdisc', 'replace', 'dev', 'lo', 'root', 'netem', ...args]);
+}
+
+async function waitUntil(predicate, description) {
+  const expires = Date.now() + 15000;
+  while (!predicate()) {
+    if (Date.now() >= expires) throw new Error('Timed out waiting for ' + description);
+    await delay(30);
+  }
+}
+
+function startNativeAgent() {
+  const agent = spawn(nativeAgent, [], {
+    windowsHide: true,
+    env: {
+      ...process.env,
+      REMOTE_LIGHT_API_BASE: base,
+      REMOTE_LIGHT_SIGNAL_BASE: base.replace('http:', 'ws:'),
+      REMOTE_LIGHT_ACCESS_TOKEN: 'cloud-test-only',
+      REMOTE_LIGHT_DEVICE_ID: 'cloud-test-only',
+      REMOTE_LIGHT_RUN_SIGNALING: '1',
+    },
+  });
+  let output = '';
+  let approved = false;
+  agent.stdout.setEncoding('utf8').on('data', text => {
+    output += text;
+    if (!approved && output.includes('Approval requested')) {
+      approved = true;
+      agent.stdin.write('approve\n');
+    }
+  });
+  agent.stderr.on('data', text => console.error('Windows test agent:', text.toString().trim()));
+  return agent;
 }
 
 async function openReceiver(page) {
@@ -129,12 +170,7 @@ async function measure(label, page, context, receiver, minDisplacement = 225, ma
   assert.ok(displacement >= minDisplacement && displacement <= maxDisplacement, label + ': cursor distance drifted');
 }
 
-async function measureTwoFingerScroll(page, context, host, supported) {
-  await host.evaluate(() => {
-    window.receiver.samples = [];
-    window.receiver.scroll = [];
-    window.receiver.clicks = 0;
-  });
+async function scrollSwipe(page, context, steps = 16) {
   const pad = await page.locator('#pad').boundingBox();
   assert.ok(pad && pad.height >= 180);
   const cdp = await context.newCDPSession(page);
@@ -142,13 +178,22 @@ async function measureTwoFingerScroll(page, context, host, supported) {
   const y = Math.round(pad.y + 40);
   const points = offset => [{ x, y: y + offset, id: 0 }, { x: x + 48, y: y + offset, id: 1 }];
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: points(0) });
-  for (let step = 1; step <= 16; step++) {
+  for (let step = 1; step <= steps; step++) {
     await delay(17);
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: points(step * 4) });
   }
   await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   await cdp.detach();
   await delay(300);
+}
+
+async function measureTwoFingerScroll(page, context, host, supported) {
+  await host.evaluate(() => {
+    window.receiver.samples = [];
+    window.receiver.scroll = [];
+    window.receiver.clicks = 0;
+  });
+  await scrollSwipe(page, context);
   const result = await host.evaluate(() => ({
     delta: window.receiver.scroll.reduce((sum, delta) => sum + delta, 0),
     movements: window.receiver.samples.length,
@@ -169,10 +214,17 @@ async function measureTwoFingerScroll(page, context, host, supported) {
   await once(server, 'listening');
   base = 'http://127.0.0.1:' + server.address().port;
   const browser = await chromium.launch();
+  let agent;
+  let probe;
   try {
-    const receiver = await browser.newPage();
-    await openReceiver(receiver);
-    while (!sockets.has('host')) await delay(25);
+    let receiver;
+    if (nativeAgent) {
+      agent = startNativeAgent();
+    } else {
+      receiver = await browser.newPage();
+      await openReceiver(receiver);
+    }
+    await waitUntil(() => sockets.has('host'), 'the receiver to connect');
     const context = await browser.newContext({ ...devices['Pixel 7'], viewport: { width: 360, height: 640 } });
     await context.route(url => url.hostname.includes('.neonauth.'), route => route.fulfill({ json: null }));
     await context.addInitScript(() => {
@@ -194,6 +246,21 @@ async function measureTwoFingerScroll(page, context, host, supported) {
       await receiver.waitForFunction(() => window.receiver.granted);
     };
     await ready();
+    if (nativeAgent) {
+      assert.match(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
+      probe = spawn('powershell.exe', ['-NoProfile', '-STA', '-File', join(__dirname, 'scroll-probe.ps1')], { windowsHide: true });
+      let output = '';
+      probe.stdout.setEncoding('utf8').on('data', text => { output += text; });
+      probe.stderr.on('data', text => console.error('Scroll probe:', text.toString().trim()));
+      await waitUntil(() => output.includes('probe ready'), 'the Windows test window');
+      await phone.locator('#authorize').click();
+      await delay(350);
+      await scrollSwipe(phone, context, 24);
+      await waitUntil(() => /wheel:[1-9][0-9]*/.test(output), 'a Windows mouse-wheel event');
+      console.log(JSON.stringify({ nativeWindowsWheelDeltas: [...output.matchAll(/wheel:(-?\d+)/g)].map(match => Number(match[1])) }));
+      assert.deepEqual(errors, []);
+      return;
+    }
     await grant();
     await measure('baseline', phone, context, receiver);
     assert.doesNotMatch(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
@@ -227,6 +294,12 @@ async function measureTwoFingerScroll(page, context, host, supported) {
     assert.deepEqual(await receiver.evaluate(() => window.receiver.errors), []);
   } finally {
     await browser.close();
+    probe?.kill();
+    if (agent && agent.exitCode === null) {
+      agent.stdin.end('stop\n');
+      await Promise.race([once(agent, 'exit'), delay(750)]);
+      if (agent.exitCode === null) agent.kill();
+    }
     for (const socket of relay.clients) socket.terminate();
     server.close();
   }

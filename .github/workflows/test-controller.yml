@@ -2,12 +2,17 @@ name: Test phone network recovery
 
 on:
   workflow_dispatch:
+    inputs:
+      windows_tag:
+        description: Windows release tag for the native scroll test (leave empty for the network test)
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   browser-test:
+    if: inputs.windows_tag == ''
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     steps:
@@ -24,3 +29,44 @@ jobs:
         run: |
           trap 'sudo tc qdisc del dev lo root 2>/dev/null || true' EXIT
           NODE_PATH="$RUNNER_TEMP/rl-browser/node_modules" node scripts/test-controller.cjs
+
+  windows-scroll-test:
+    if: inputs.windows_tag != ''
+    runs-on: windows-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.windows_tag }}
+      RL_RUNNER_ENVIRONMENT: ${{ runner.environment }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify and extract test installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          if ($env:RELEASE_TAG -cnotmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Expected a version tag' }
+          $release = New-Item -ItemType Directory (Join-Path $env:RUNNER_TEMP 'rl-installer')
+          gh release download $env:RELEASE_TAG -R $env:GITHUB_REPOSITORY -D $release.FullName -p RemoteLight-Setup.msi -p RemoteLight-Setup.msi.sha256
+          $msi = Join-Path $release.FullName 'RemoteLight-Setup.msi'
+          $checksum = (Get-Content -LiteralPath "$msi.sha256" -Raw).Trim()
+          if ($checksum -match '^([a-f0-9]{64})  RemoteLight-Setup\.msi$') { $expected = $Matches[1] } else { throw 'Bad checksum file' }
+          if ((Get-FileHash -LiteralPath $msi).Hash -ne $expected) { throw 'Bad installer hash' }
+          $out = Join-Path $release.FullName 'extracted'
+          $process = Start-Process -FilePath msiexec.exe -ArgumentList @('/a', "`"$msi`"", '/qn', "TARGETDIR=`"$out`"") -WindowStyle Hidden -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw "MSI extraction failed ($($process.ExitCode))" }
+          $agents = @(Get-ChildItem -LiteralPath $out -Recurse -Filter 'rl-agent.exe')
+          if ($agents.Count -ne 1) { throw 'Expected one agent in the MSI' }
+          "RL_TEST_AGENT=$($agents[0].FullName)" >> $env:GITHUB_ENV
+      - name: Pair Chromium with the extracted Windows agent and test scrolling
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $deps = Join-Path $env:RUNNER_TEMP 'rl-browser'
+          npm install --prefix $deps --no-save playwright@1.65.1 ws@8.18.3
+          & (Join-Path $deps 'node_modules/.bin/playwright.cmd') install chromium
+          $env:NODE_PATH = Join-Path $deps 'node_modules'
+          node scripts/test-controller.cjs

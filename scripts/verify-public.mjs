@@ -11,6 +11,7 @@ const repositoryFiles = new Set([
   '.github/workflows/test-controller.yml',
   'scripts/verify-public.mjs',
   'scripts/test-controller.cjs',
+  'scripts/scroll-probe.ps1',
 ]);
 const assetName = /^assets\/(?:index|rtc|manifest)-[\w-]+\.(?:js|css|webmanifest)$/;
 const exposedCredential = /postgres(?:ql)?:\/\/[^\s"'<>]+:[^\s"'<>]+@|-----BEGIN (?:[A-Z]+ )*PRIVATE KEY-----|github_pat_[a-zA-Z0-9_]{20,}|\bgh[pousr]_[a-zA-Z0-9]{30,}|sourceMappingURL\s*=/;
