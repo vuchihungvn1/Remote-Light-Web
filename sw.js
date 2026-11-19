@@ -1,8 +1,9 @@
-const CACHE = 'remote-light-shell-v10';
-const ASSETS = ['./', './index.html'];
+const CACHE = 'remote-light-shell-v11';
+const HOME = new URL('./index.html', self.registration.scope).href;
+const ASSET_PATH = new URL('./assets/', self.registration.scope).pathname;
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(CACHE).then(cache => cache.add(HOME)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {
@@ -14,14 +15,22 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin || event.request.method !== 'GET' || url.pathname.startsWith('/v1/')) return;
+  const navigation = event.request.mode === 'navigate';
+  if (!navigation && !url.pathname.startsWith(ASSET_PATH)) return;
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
+    if (!navigation) {
+      const cached = await cache.match(event.request);
+      if (cached) return cached;
+    }
     try {
-      const response = await fetch(event.request);
-      if (response.ok && response.type === 'basic') await cache.put(event.request, response.clone());
+      const response = await fetch(event.request, navigation ? { cache: 'no-cache' } : undefined);
+      if (response.ok && response.type === 'basic') {
+        await cache.put(navigation ? HOME : event.request, response.clone()).catch(() => {});
+      }
       return response;
     } catch {
-      return (await cache.match(event.request)) ?? (event.request.mode === 'navigate' ? cache.match('./index.html') : Response.error());
+      return (navigation ? await cache.match(HOME) : undefined) ?? Response.error();
     }
   })());
 });

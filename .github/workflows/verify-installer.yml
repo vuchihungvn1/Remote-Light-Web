@@ -1,0 +1,33 @@
+name: Verify Windows release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Check published installer and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$(mktemp -d)"
+          release=()
+          if [[ -n "$RELEASE_TAG" ]]; then
+            [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]]
+            release+=("$RELEASE_TAG")
+          fi
+          gh release download "${release[@]}" --repo "$GITHUB_REPOSITORY" \
+            --pattern 'RemoteLight-Setup.msi' --pattern 'RemoteLight-Setup.msi.sha256'
+          read -r hash filename extra < <(tr -d '\r' < RemoteLight-Setup.msi.sha256)
+          [[ "$hash" =~ ^[A-Fa-f0-9]{64}$ && "$filename" == 'RemoteLight-Setup.msi' && -z "$extra" ]]
+          printf '%s  RemoteLight-Setup.msi\n' "${hash,,}" | sha256sum --check --strict
+          [[ "$(od -An -tx1 -N8 RemoteLight-Setup.msi | tr -d ' \n')" == d0cf11e0a1b11ae1 ]]

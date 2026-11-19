@@ -180,6 +180,16 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
   let readyAnnounced = false;
   const pendingCandidates = [];
   const channels = {};
+  const sendFrame = (name, frame) => {
+    const channel = channels[name];
+    if (!inputAuthorized || channel?.readyState !== 'open' || channel.bufferedAmount + frame.byteLength > MAX_BUFFERED_BYTES[name]) return false;
+    try {
+      channel.send(frame);
+      return true;
+    } catch {
+      return false;
+    }
+  };
   const isReady = () => peer.connectionState === 'connected'
     && channels.fast?.readyState === 'open'
     && channels.reliable?.readyState === 'open';
@@ -213,39 +223,14 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
     peer,
     channels,
     isReady,
-    sendInput(frame) {
-      const channel = channels.fast;
-      if (!inputAuthorized || !channel || channel.readyState !== 'open' || channel.bufferedAmount > MAX_BUFFERED_BYTES.fast) return false;
-      channel.send(frame);
-      return true;
-    },
-    sendReliable(frame) {
-      const channel = channels.reliable;
-      if (!inputAuthorized || !channel || channel.readyState !== 'open' || channel.bufferedAmount > MAX_BUFFERED_BYTES.reliable) return false;
-      channel.send(frame);
-      return true;
-    },
-    sendMeta(frame) {
-      const channel = channels.meta;
-      if (!inputAuthorized || !channel || channel.readyState !== 'open' || channel.bufferedAmount > MAX_BUFFERED_BYTES.meta) return false;
-      channel.send(frame);
-      return true;
-    },
-    sendBulk(frame) {
-      const channel = channels.bulk;
-      if (!inputAuthorized || !channel || channel.readyState !== 'open' || channel.bufferedAmount > MAX_BUFFERED_BYTES.bulk) return false;
-      channel.send(frame);
-      return true;
-    },
+    sendInput: frame => sendFrame('fast', frame),
+    sendReliable: frame => sendFrame('reliable', frame),
+    sendMeta: frame => sendFrame('meta', frame),
+    sendBulk: frame => sendFrame('bulk', frame),
     authorizeInput() {
       inputAuthorized = true;
       clearInterval(heartbeatTimer);
-      heartbeatTimer = setInterval(() => {
-        const channel = channels.fast;
-        if (inputAuthorized && channel && channel.readyState === 'open' && channel.bufferedAmount <= MAX_BUFFERED_BYTES.fast) {
-          channel.send(encodePing(++heartbeatCounter));
-        }
-      }, 1000);
+      heartbeatTimer = setInterval(() => sendFrame('reliable', encodePing(++heartbeatCounter)), 500);
     },
     revokeInput() {
       inputAuthorized = false;
