@@ -5,7 +5,7 @@ const CHANNELS = {
   bulk: { ordered: true },
 };
 
-const OPCODES = { MOVE_REL: 0x01, BTN: 0x03, KEY: 0x05, TEXT: 0x06, RELEASE_ALL: 0x0C, PING: 0x20, FILE_OFFER: 0x30, FILE_ACCEPT: 0x31, FILE_CHUNK: 0x32, FILE_ACK: 0x33, FILE_CANCEL: 0x34, FILE_DONE: 0x35, CLIP: 0x50 };
+const OPCODES = { MOVE_REL: 0x01, BTN: 0x03, WHEEL: 0x04, KEY: 0x05, TEXT: 0x06, RELEASE_ALL: 0x0C, PING: 0x20, FILE_OFFER: 0x30, FILE_ACCEPT: 0x31, FILE_CHUNK: 0x32, FILE_ACK: 0x33, FILE_CANCEL: 0x34, FILE_DONE: 0x35, CLIP: 0x50 };
 const MAX_CLIPBOARD_BYTES = 5 * 1024 * 1024;
 const MAX_FILE_CHUNK_BYTES = 16 * 1024 - 12;
 const MAX_FILE_NAME_BYTES = 120;
@@ -33,6 +33,12 @@ export function encodeMoveRel(dx, dy) {
 
 export function encodeButton(button, pressed) {
   return encodeFastRecord(OPCODES.BTN, Uint8Array.of(button, pressed ? 1 : 0));
+}
+
+export function encodeWheel(delta) {
+  const data = new Uint8Array(2);
+  new DataView(data.buffer).setInt16(0, Math.max(-1200, Math.min(1200, Math.trunc(delta))), false);
+  return encodeFastRecord(OPCODES.WHEEL, data);
 }
 
 export function encodeKey(usage, pressed, modifiers = 0) {

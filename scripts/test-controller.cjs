@@ -57,7 +57,7 @@ async function openReceiver(page) {
   await page.evaluate(({ wsUrl, pairCode }) => {
     const peer = new RTCPeerConnection();
     const socket = new WebSocket(wsUrl);
-    const receiver = window.receiver = { samples: [], granted: false, errors: [] };
+    const receiver = window.receiver = { samples: [], scroll: [], clicks: 0, advertiseWheel: false, granted: false, errors: [] };
     const candidates = [];
     const send = (type, payload = {}) => socket.send(JSON.stringify({ type, pairCode, payload }));
     peer.onicecandidate = ({ candidate }) => { if (candidate) send('ice_candidate', { candidate }); };
@@ -65,9 +65,13 @@ async function openReceiver(page) {
       channel.binaryType = 'arraybuffer';
       channel.onmessage = ({ data }) => {
         const bytes = new DataView(data);
-        if (channel.label === 'rl-fast' && bytes.byteLength === 7 && bytes.getUint8(0) === 1 && receiver.granted) {
+        if (!receiver.granted || bytes.byteLength < 3) return;
+        const opcode = bytes.getUint8(0);
+        if (channel.label === 'rl-fast' && bytes.byteLength === 7 && opcode === 1) {
           receiver.samples.push({ at: Date.now(), dx: bytes.getInt16(3) });
         }
+        if (channel.label === 'rl-fast' && bytes.byteLength === 5 && opcode === 4) receiver.scroll.push(bytes.getInt16(3));
+        if (channel.label === 'rl-reliable' && opcode === 3) receiver.clicks++;
       };
     };
     socket.onmessage = async ({ data }) => {
@@ -75,7 +79,7 @@ async function openReceiver(page) {
         const { type, payload } = JSON.parse(data);
         if (type === 'phone_ready') {
           receiver.granted = false;
-          send('host_approved');
+          send('host_approved', receiver.advertiseWheel ? { capabilities: ['wheel-v1'] } : {});
         } else if (type === 'pair_offer') {
           await peer.setRemoteDescription(payload.description);
           await peer.setLocalDescription(await peer.createAnswer());
@@ -112,7 +116,7 @@ async function swipe(page, context) {
   await delay(300);
 }
 
-async function measure(label, page, context, receiver) {
+async function measure(label, page, context, receiver, minDisplacement = 225, maxDisplacement = 280) {
   await receiver.evaluate(() => { window.receiver.samples = []; });
   await swipe(page, context);
   const samples = await receiver.evaluate(() => window.receiver.samples);
@@ -122,7 +126,42 @@ async function measure(label, page, context, receiver) {
   console.log(JSON.stringify({ label, cursorPackets: samples.length, p95GapMs: p95, displacement }));
   assert.ok(samples.length >= 28, label + ': too few cursor packets');
   assert.ok(p95 <= 100, label + ': cursor packets stalled');
-  assert.ok(displacement >= 225 && displacement <= 280, label + ': cursor distance drifted');
+  assert.ok(displacement >= minDisplacement && displacement <= maxDisplacement, label + ': cursor distance drifted');
+}
+
+async function measureTwoFingerScroll(page, context, host, supported) {
+  await host.evaluate(() => {
+    window.receiver.samples = [];
+    window.receiver.scroll = [];
+    window.receiver.clicks = 0;
+  });
+  const pad = await page.locator('#pad').boundingBox();
+  assert.ok(pad && pad.height >= 180);
+  const cdp = await context.newCDPSession(page);
+  const x = Math.round(pad.x + 64);
+  const y = Math.round(pad.y + 40);
+  const points = offset => [{ x, y: y + offset, id: 0 }, { x: x + 48, y: y + offset, id: 1 }];
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: points(0) });
+  for (let step = 1; step <= 16; step++) {
+    await delay(17);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: points(step * 4) });
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await cdp.detach();
+  await delay(300);
+  const result = await host.evaluate(() => ({
+    delta: window.receiver.scroll.reduce((sum, delta) => sum + delta, 0),
+    movements: window.receiver.samples.length,
+    clicks: window.receiver.clicks,
+  }));
+  console.log(JSON.stringify({ supported, twoFingerScroll: result }));
+  if (supported) {
+    assert.ok(result.delta >= 135 && result.delta <= 160, 'two-finger scroll did not send the expected wheel delta');
+    assert.equal(result.movements, 0, 'scroll also moved the cursor');
+    assert.equal(result.clicks, 0, 'scroll also clicked');
+  } else {
+    assert.equal(result.delta, 0, 'sent a wheel event to a legacy host');
+  }
 }
 
 (async () => {
@@ -157,6 +196,8 @@ async function measure(label, page, context, receiver) {
     await ready();
     await grant();
     await measure('baseline', phone, context, receiver);
+    assert.doesNotMatch(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
+    await measureTwoFingerScroll(phone, context, receiver, false);
 
     await context.setOffline(true);
     sockets.get('phone').close(1012, 'simulated network switch');
@@ -165,6 +206,7 @@ async function measure(label, page, context, receiver) {
     await phone.waitForFunction(() => ['disconnected', 'failed'].includes(window.testPeer?.connectionState), undefined, { timeout: 20000 });
     console.log('Observed loss of the WebRTC connection.');
     netem('delay', '45ms', '8ms', 'loss', '0.3%');
+    await receiver.evaluate(() => { window.receiver.advertiseWheel = true; });
     const recoveredAt = performance.now();
     await context.setOffline(false);
     await ready();
@@ -174,6 +216,13 @@ async function measure(label, page, context, receiver) {
     assert.equal(await phone.locator('body').getAttribute('data-controlling'), 'false');
     await grant();
     await measure('after switch (45ms delay, 8ms jitter, 0.3% loss)', phone, context, receiver);
+    assert.match(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
+    await measureTwoFingerScroll(phone, context, receiver, true);
+    await phone.locator('.keyboard-panel summary').click();
+    await phone.locator('#pointer-speed').selectOption('2.2');
+    assert.equal(await phone.evaluate(() => localStorage.getItem('rl_pointer_speed')), '2.2');
+    await phone.locator('.keyboard-panel summary').click();
+    await measure('fast pointer speed', phone, context, receiver, 350, 423);
     assert.deepEqual(errors, []);
     assert.deepEqual(await receiver.evaluate(() => window.receiver.errors), []);
   } finally {
