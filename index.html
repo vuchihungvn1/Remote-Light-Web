@@ -8,8 +8,8 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-DFA88Iu8.js" integrity="sha384-478BGXpJR/h+8svpxp/4z/ewQsR3G2UHwAyRHX0cmmbvynWWg9m6JzB60vZLI4wh" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-DYhiI7o7.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-C6lJWfyc.css">
+    <script type="module" crossorigin src="./assets/index-r9ujWPzN.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BHNrcZ9j.css">
   </head>
   <body>
     <main class="app-shell">
@@ -56,6 +56,16 @@
           <label for="auth-password">Mật khẩu<input id="auth-password" type="password" autocomplete="current-password" placeholder="Tối thiểu 8 ký tự"></label>
         </div>
         <div class="actions"><button id="sign-in" class="primary" type="button">Đăng nhập</button><button id="sign-up" class="secondary" type="button">Tạo tài khoản</button></div>
+        <button id="show-password-reset" class="text-button" type="button">Quên mật khẩu?</button>
+        <section id="password-reset-panel" class="password-reset-panel" hidden aria-label="Đặt lại mật khẩu">
+          <p>Nhận mã xác minh qua email, sau đó nhập mã và mật khẩu mới.</p>
+          <div class="actions"><button id="send-reset-code" class="secondary" type="button">Gửi mã xác minh</button></div>
+          <div class="form-grid">
+            <label for="reset-otp">Mã xác minh<input id="reset-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="8"></label>
+            <label for="reset-password">Mật khẩu mới<input id="reset-password" type="password" autocomplete="new-password" minlength="8"></label>
+          </div>
+          <div class="actions"><button id="confirm-password-reset" class="primary" type="button">Đặt lại mật khẩu</button><button id="cancel-password-reset" class="secondary" type="button">Hủy</button></div>
+        </section>
       </section>
 
       <section id="phone-panel" class="card pair-card" aria-label="Ghép nối máy tính">
