@@ -34,16 +34,15 @@ jobs:
     if: inputs.windows_tag != ''
     runs-on: windows-latest
     timeout-minutes: 10
-    env:
-      GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: ${{ inputs.windows_tag }}
-      RL_RUNNER_ENVIRONMENT: ${{ runner.environment }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
       - name: Verify and extract test installer
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.windows_tag }}
         run: |
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $true
@@ -62,6 +61,8 @@ jobs:
           "RL_TEST_AGENT=$($agents[0].FullName)" >> $env:GITHUB_ENV
       - name: Pair Chromium with the extracted Windows agent and test scrolling
         shell: pwsh
+        env:
+          RL_RUNNER_ENVIRONMENT: ${{ runner.environment }}
         run: |
           $ErrorActionPreference = 'Stop'
           $PSNativeCommandUseErrorActionPreference = $true
