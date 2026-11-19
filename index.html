@@ -6,10 +6,10 @@
     <meta name="theme-color" content="#0b1020">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://br-holy-leaf-b39m40ce-api.compute.c-4.ap-southeast-1.aws.neon.tech https://ep-dawn-feather-b33fgmvy.neonauth.c-4.ap-southeast-1.aws.neon.tech wss://br-holy-leaf-b39m40ce-signal.compute.c-4.ap-southeast-1.aws.neon.tech; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types default">
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
-    <link rel="modulepreload" href="./assets/rtc-Dk90aKTo.js" integrity="sha384-478BGXpJR/h+8svpxp/4z/ewQsR3G2UHwAyRHX0cmmbvynWWg9m6JzB60vZLI4wh" crossorigin="anonymous">
+    <link rel="modulepreload" href="./assets/rtc-DFA88Iu8.js" integrity="sha384-478BGXpJR/h+8svpxp/4z/ewQsR3G2UHwAyRHX0cmmbvynWWg9m6JzB60vZLI4wh" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-CzZatHWu.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BStY1dMe.css">
+    <script type="module" crossorigin src="./assets/index-YiexJ1Sw.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Cj0k-fRz.css">
   </head>
   <body>
     <main class="app-shell">
@@ -48,7 +48,9 @@
       </aside>
 
       <section id="auth-panel" class="card auth-card" aria-label="Đăng nhập">
+        <button id="auth-close" class="auth-close" type="button" aria-label="Đóng" hidden>×</button>
         <div class="card-heading"><span class="icon">◎</span><div><h2>Tài khoản</h2><p>Đăng nhập để lưu các máy tính đã ghép nối. Có thể bỏ qua để dùng một phiên tạm thời.</p></div></div>
+        <p id="auth-feedback" class="auth-feedback" role="status" hidden></p>
         <div class="form-grid">
           <label for="auth-email">Email<input id="auth-email" type="email" autocomplete="email" placeholder="you@example.com"></label>
           <label for="auth-password">Mật khẩu<input id="auth-password" type="password" autocomplete="current-password" placeholder="Tối thiểu 8 ký tự"></label>

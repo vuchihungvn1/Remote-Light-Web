@@ -172,14 +172,31 @@ export function encodeFileDone(id, sha256) {
 }
 
 export function createRemoteTransport(onState = () => {}, onSignal = () => {}, options = {}) {
-  const peer = new RTCPeerConnection();
+  const peer = new RTCPeerConnection({ iceServers: options.iceServers ?? [{ urls: 'stun:stun.cloudflare.com:3478' }] });
   let inputAuthorized = false;
   let heartbeatTimer;
   let heartbeatCounter = 0;
+  let remoteDescriptionSet = false;
+  let readyAnnounced = false;
+  const pendingCandidates = [];
   const channels = {};
+  const isReady = () => peer.connectionState === 'connected'
+    && channels.fast?.readyState === 'open'
+    && channels.reliable?.readyState === 'open';
+  const notifyReady = () => {
+    if (isReady() && !readyAnnounced) {
+      readyAnnounced = true;
+      options.onReady?.();
+    } else if (!isReady()) {
+      readyAnnounced = false;
+    }
+  };
   const configureChannel = (name, channel) => {
     channel.binaryType = 'arraybuffer';
     channels[name] = channel;
+    channel.addEventListener('open', notifyReady);
+    channel.addEventListener('close', notifyReady);
+    notifyReady();
   };
   if (options.initiator !== false) {
     for (const [name, channelOptions] of Object.entries(CHANNELS)) {
@@ -190,11 +207,12 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
     const name = event.channel.label.startsWith('rl-') ? event.channel.label.slice(3) : '';
     if (name in CHANNELS) configureChannel(name, event.channel);
   };
-  peer.onconnectionstatechange = () => onState(peer.connectionState);
+  peer.onconnectionstatechange = () => { onState(peer.connectionState); notifyReady(); };
   peer.onicecandidate = event => { if (event.candidate) onSignal({ type: 'ice_candidate', candidate: event.candidate }); };
   return {
     peer,
     channels,
+    isReady,
     sendInput(frame) {
       const channel = channels.fast;
       if (!inputAuthorized || !channel || channel.readyState !== 'open' || channel.bufferedAmount > MAX_BUFFERED_BYTES.fast) return false;
@@ -240,8 +258,16 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
       onSignal({ type: 'pair_offer', description: peer.localDescription });
       return peer.localDescription;
     },
-    async acceptAnswer(description) { await peer.setRemoteDescription(description); },
-    async addCandidate(candidate) { await peer.addIceCandidate(candidate); },
+    async acceptAnswer(description) {
+      await peer.setRemoteDescription(description);
+      remoteDescriptionSet = true;
+      for (const candidate of pendingCandidates.splice(0)) await peer.addIceCandidate(candidate);
+      notifyReady();
+    },
+    async addCandidate(candidate) {
+      if (!remoteDescriptionSet) { pendingCandidates.push(candidate); return; }
+      await peer.addIceCandidate(candidate);
+    },
     close() {
       clearInterval(heartbeatTimer);
       heartbeatTimer = undefined;
