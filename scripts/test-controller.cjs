@@ -98,7 +98,7 @@ async function openReceiver(page) {
   await page.evaluate(({ wsUrl, pairCode }) => {
     const peer = new RTCPeerConnection();
     const socket = new WebSocket(wsUrl);
-    const receiver = window.receiver = { samples: [], scroll: [], clicks: 0, advertiseWheel: false, granted: false, errors: [] };
+    const receiver = window.receiver = { samples: [], keys: [], scroll: [], clicks: 0, advertiseWheel: false, granted: false, errors: [] };
     const candidates = [];
     const send = (type, payload = {}) => socket.send(JSON.stringify({ type, pairCode, payload }));
     peer.onicecandidate = ({ candidate }) => { if (candidate) send('ice_candidate', { candidate }); };
@@ -113,6 +113,16 @@ async function openReceiver(page) {
         }
         if (channel.label === 'rl-fast' && bytes.byteLength === 5 && opcode === 4) receiver.scroll.push(bytes.getInt16(3));
         if (channel.label === 'rl-reliable' && opcode === 3) receiver.clicks++;
+        if (channel.label === 'rl-reliable' && (opcode === 5 || opcode === 6)) {
+          for (let offset = 0; offset < bytes.byteLength;) {
+            const length = bytes.getUint16(offset + 1);
+            const item = bytes.getUint8(offset) === 5
+              ? [bytes.getUint16(offset + 3), bytes.getUint8(offset + 5)]
+              : new TextDecoder().decode(new Uint8Array(data, offset + 6, length - 3));
+            receiver.keys.push(item);
+            offset += length + 3;
+          }
+        }
       };
     };
     socket.onmessage = async ({ data }) => {
@@ -280,6 +290,20 @@ async function measureTwoFingerScroll(page, context, host, supported) {
       return;
     }
     await grant();
+    await phone.locator('#open-keyboard').tap();
+    const input = phone.locator('#text-input');
+    await input.fill('a');
+    await input.fill('ắ');
+    await phone.locator('[data-key-group="edit"]').tap();
+    await phone.locator('[data-shortcut="copy"]').tap();
+    assert.ok(await input.evaluate(el => document.activeElement === el));
+    await phone.locator('[data-key-group="keys"]').tap();
+    await phone.locator('[data-shortcut="enter"]').tap();
+    await receiver.waitForFunction(() => window.receiver.keys.length >= 10);
+    assert.deepEqual(await receiver.evaluate(() => window.receiver.keys),
+      ['a', [42, 1], [42, 0], 'ắ', [224, 1], [6, 1], [6, 0], [224, 0], [40, 1], [40, 0]]);
+    console.log('Live Vietnamese input, shortcut focus, Ctrl+C and Enter passed over WebRTC.');
+    await phone.locator('#close-keyboard').tap();
     await measure('baseline', phone, context, receiver);
     assert.doesNotMatch(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
     await measureTwoFingerScroll(phone, context, receiver, false);
@@ -303,10 +327,10 @@ async function measureTwoFingerScroll(page, context, host, supported) {
     await measure('after switch (45ms delay, 8ms jitter, 0.3% loss)', phone, context, receiver);
     assert.match(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
     await measureTwoFingerScroll(phone, context, receiver, true);
-    await phone.locator('.keyboard-panel summary').click();
+    await phone.locator('#control-settings summary').click();
     await phone.locator('#pointer-speed').selectOption('2.2');
     assert.equal(await phone.evaluate(() => localStorage.getItem('rl_pointer_speed')), '2.2');
-    await phone.locator('.keyboard-panel summary').click();
+    await phone.locator('#control-settings summary').click();
     await measure('fast pointer speed', phone, context, receiver, 350, 423);
     assert.deepEqual(errors, []);
     assert.deepEqual(await receiver.evaluate(() => window.receiver.errors), []);
