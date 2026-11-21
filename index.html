@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
     <meta name="theme-color" content="#0b1020">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://br-holy-leaf-b39m40ce-api.compute.c-4.ap-southeast-1.aws.neon.tech https://ep-dawn-feather-b33fgmvy.neonauth.c-4.ap-southeast-1.aws.neon.tech wss://br-holy-leaf-b39m40ce-signal.compute.c-4.ap-southeast-1.aws.neon.tech; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types default">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://br-holy-leaf-b39m40ce-membership.compute.c-4.ap-southeast-1.aws.neon.tech https://br-holy-leaf-b39m40ce-api.compute.c-4.ap-southeast-1.aws.neon.tech https://ep-dawn-feather-b33fgmvy.neonauth.c-4.ap-southeast-1.aws.neon.tech wss://br-holy-leaf-b39m40ce-signal.compute.c-4.ap-southeast-1.aws.neon.tech; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types default">
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-CbSGCDwk.js" integrity="sha384-nQrNqhIiYPbBE6N1wkvuPtDCvz5v5YNjyzDsrCMACBjav6I+xRUUWKFAZDra+QPF" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-Bc75O2w7.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-emK3xO6H.css">
+    <script type="module" crossorigin src="./assets/index-DdUIFMoB.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-_HeSykqe.css">
   </head>
   <body>
     <main class="app-shell">
@@ -33,9 +33,37 @@
           <label class="compact-setting" for="theme-select">Giao diện
             <select id="theme-select"><option value="dark">Tối</option><option value="light">Sáng</option><option value="system">Theo hệ thống</option></select>
           </label>
+          <button id="show-membership" class="secondary" type="button">Gói tài khoản</button>
           <button id="sign-out" class="secondary" type="button">Đăng xuất</button>
         </section>
       </header>
+      <dialog id="membership" aria-labelledby="membership-title">
+        <header><h2 id="membership-title">Gói tài khoản</h2><form method="dialog"><button aria-label="Đóng">×</button></form></header>
+        <p id="membership-current"></p>
+        <details id="member-phrases" hidden>
+          <summary>Mẫu văn bản</summary>
+          <label>Ô lưu <select id="phrase-slot"></select></label>
+          <label>Nội dung <textarea id="phrase-value" maxlength="512" rows="2"></textarea></label>
+          <button type="button" id="phrase-save">Lưu mẫu</button>
+          <button type="button" id="phrase-copy">Sao chép</button>
+          <button type="button" id="phrase-delete">Xóa mẫu</button>
+        </details>
+        <details id="member-devices" hidden>
+          <summary>Máy đã ghi nhớ</summary>
+          <label>Máy tính <select id="member-device"></select></label>
+          <label>Tên hiển thị <input id="member-device-name" maxlength="80"></label>
+          <button type="button" id="device-rename">Lưu tên</button>
+        </details>
+        <div id="membership-options">
+          <p><strong>Thường</strong> · Ghép đôi, chuột và bàn phím.</p>
+          <p><strong>Pro</strong> · Lưu 5 mẫu văn bản.</p>
+          <button data-plan="pro" type="button">Xem đơn Pro</button>
+          <p><strong>Pro Max</strong> · Lưu 50 mẫu, quản lý tên thiết bị.</p>
+          <button data-plan="pro_max" type="button">Xem đơn Pro Max</button>
+        </div>
+        <p id="membership-transfer"></p>
+        <p id="membership-notice" role="status"></p>
+      </dialog>
 
       <p id="status" class="status" role="status" aria-live="polite">Chưa kết nối</p>
 
@@ -137,6 +165,6 @@
       </section>
 
       <p id="safety-warning" class="warning safety-warning">Chỉ kết nối với máy bạn sở hữu hoặc người bạn tin cậy.</p>
-    </main>
+    </main>
   </body>
 </html>
