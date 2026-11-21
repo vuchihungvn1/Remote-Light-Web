@@ -8,7 +8,7 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-CbSGCDwk.js" integrity="sha384-nQrNqhIiYPbBE6N1wkvuPtDCvz5v5YNjyzDsrCMACBjav6I+xRUUWKFAZDra+QPF" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-CKFC_jb_.js"></script>
+    <script type="module" crossorigin src="./assets/index-BhcbEcAG.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-_HeSykqe.css">
   </head>
   <body>
@@ -95,6 +95,8 @@
 
       <section id="phone-panel" class="card pair-card" aria-label="Ghép nối máy tính">
         <div class="card-heading"><span class="icon">▦</span><div><h2>Kết nối máy tính</h2><p>Quét mã QR trên ứng dụng Remote Light ở PC, hoặc nhập mã 6 số.</p></div></div>
+        <button id="scan-qr" class="primary" type="button">Quét mã QR</button>
+        <dialog id="scanner" aria-labelledby="scan-title"><div><h2 id="scan-title">Quét mã QR</h2><video muted playsinline style="display:block;width:100%;max-height:48dvh;object-fit:contain"></video><p role="status"></p><button type="button" class="secondary" id="scan-close">Đóng</button></div></dialog>
         <form id="pair-form" class="pair-form">
           <label for="pair-code-input">Mã ghép đôi<input id="pair-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></label>
           <button id="connect-phone" class="primary" type="submit">Kết nối</button>
