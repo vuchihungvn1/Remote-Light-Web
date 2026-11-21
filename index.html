@@ -8,8 +8,8 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-DAdBe1P2.js" integrity="sha384-/qmdfU+v7bTtt2L/QxeYp/ZYwYgC0z6esEd54q4KVVnag7xiHFduE6IMwaJ4RbNB" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-B-GL_i4k.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DCl2qOOi.css">
+    <script type="module" crossorigin src="./assets/index-D5giYmhC.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-zG0LrXB-.css">
   </head>
   <body>
     <main class="app-shell">
@@ -94,14 +94,16 @@
         </section>
       </section>
 
+      <details class="card" id="computer-directory" hidden>
+        <summary id="directory-title">Máy tính của tôi</summary>
+        <button type="button" id="reload-computers">Làm mới</button>
+        <p id="directory-status" role="status"></p><ul id="directory-list"></ul>
+      </details>
       <section id="phone-panel" class="card pair-card" aria-label="Ghép nối máy tính">
         <div class="card-heading"><span class="icon">▦</span><div><h2>Kết nối máy tính</h2><p>Quét mã QR trên ứng dụng Remote Light ở PC, hoặc nhập mã 6 số.</p></div></div>
         <button id="scan-qr" class="primary" type="button">Quét mã QR</button>
         <dialog id="scanner" aria-labelledby="scan-title"><div><h2 id="scan-title">Quét mã QR</h2><video muted playsinline style="display:block;width:100%;max-height:48dvh;object-fit:contain"></video><p role="status"></p><button type="button" class="secondary" id="scan-close">Đóng</button></div></dialog>
-        <section id="computer-directory" hidden>
-          <div><strong id="directory-title">Máy tính của tôi</strong> <button type="button" id="reload-computers">Làm mới</button></div>
-          <p id="directory-status" role="status"></p><ul id="directory-list"></ul>
-        </section>
+
         <form id="pair-form" class="pair-form">
           <label for="pair-code-input">Mã ghép đôi<input id="pair-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></label>
           <button id="connect-phone" class="primary" type="submit">Kết nối</button>
