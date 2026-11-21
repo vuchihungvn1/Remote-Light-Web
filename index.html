@@ -8,8 +8,8 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-CbSGCDwk.js" integrity="sha384-nQrNqhIiYPbBE6N1wkvuPtDCvz5v5YNjyzDsrCMACBjav6I+xRUUWKFAZDra+QPF" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-BP3NiQuE.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CflMlZmG.css">
+    <script type="module" crossorigin src="./assets/index-Bc75O2w7.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-emK3xO6H.css">
   </head>
   <body>
     <main class="app-shell">
@@ -75,8 +75,9 @@
 
       <section id="control-panel" class="card control-card" aria-label="Điều khiển từ xa" hidden>
         <div class="control-heading">
-          <div><h2>Bàn di chuột</h2><p id="connection-detail">Đang chờ PC xác nhận</p></div>
-          <button id="authorize" class="primary" type="button" disabled>Cho phép điều khiển</button>
+          <div class="control-description"><h2>Bàn di chuột</h2><p id="connection-detail">Đang chờ PC xác nhận</p></div>
+          <button id="close-keyboard" class="secondary" type="button" hidden>‹ Bàn di chuột</button>
+          <button id="authorize" class="primary" type="button" aria-pressed="false" disabled>Cho phép điều khiển</button>
         </div>
         <section id="pad" aria-label="Touchpad điều khiển chuột" tabindex="0">
           <span>Di chuyển ngón tay để rê chuột</span>
@@ -85,22 +86,54 @@
         <div class="control-toolbar" aria-label="Điều khiển chuột">
           <button type="button" data-mouse="1">Chuột trái</button><button type="button" data-mouse="3">Chuột giữa</button><button type="button" data-mouse="2">Chuột phải</button>
         </div>
-        <details class="keyboard-panel">
-          <summary>Bàn phím và tùy chỉnh</summary>
-          <label class="speed-setting" for="pointer-speed">
-            <span id="pointer-speed-label">Tốc độ chuột</span>
-            <select id="pointer-speed">
-              <option value="0.9">Chậm</option>
-              <option value="1.45" selected>Vừa</option>
-              <option value="2.2">Nhanh</option>
-            </select>
-          </label>
-          <label class="keyboard-label" for="text-input">Gửi văn bản
-            <textarea id="text-input" rows="2" maxlength="1024" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Nhập nội dung..."></textarea>
-          </label>
-          <button id="send-text" class="secondary send-text" type="button">Gửi văn bản</button>
-        </details>
-        <a class="new-pair" href="./">Ghép nối máy khác</a>
+        <div class="control-actions">
+          <button id="open-keyboard" class="secondary" type="button" aria-controls="typing-panel" disabled>Bàn phím</button>
+          <details id="control-settings">
+            <summary>Cài đặt</summary>
+            <div class="settings-menu">
+              <label class="speed-setting" for="pointer-speed">
+                <span id="pointer-speed-label">Tốc độ chuột</span>
+                <select id="pointer-speed">
+                  <option value="0.9">Chậm</option>
+                  <option value="1.45" selected>Vừa</option>
+                  <option value="2.2">Nhanh</option>
+                </select>
+              </label>
+              <a class="new-pair" href="./">Ghép nối máy khác</a>
+            </div>
+          </details>
+        </div>
+        <div id="typing-panel" hidden>
+          <textarea id="text-input" rows="1" inputmode="text" enterkeyhint="enter" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Gõ trực tiếp trên máy tính" placeholder="Gõ trực tiếp trên máy tính"></textarea>
+          <div class="shortcut-groups" role="group" aria-label="Nhóm phím">
+            <button type="button" data-key-group="move" aria-pressed="true">Di chuyển</button>
+            <button type="button" data-key-group="edit" aria-pressed="false">Chỉnh sửa</button>
+            <button type="button" data-key-group="keys" aria-pressed="false">Phím khác</button>
+          </div>
+          <div class="shortcut-row" data-key-row="move">
+            <button type="button" data-shortcut="home" aria-label="Đầu dòng">⇤</button>
+            <button type="button" data-shortcut="left" aria-label="Trái">←</button>
+            <button type="button" data-shortcut="up" aria-label="Lên">↑</button>
+            <button type="button" data-shortcut="down" aria-label="Xuống">↓</button>
+            <button type="button" data-shortcut="right" aria-label="Phải">→</button>
+            <button type="button" data-shortcut="end" aria-label="Cuối dòng">⇥</button>
+          </div>
+          <div class="shortcut-row" data-key-row="edit" hidden>
+            <button type="button" data-shortcut="selectAll">Chọn hết</button>
+            <button type="button" data-shortcut="copy">Chép</button>
+            <button type="button" data-shortcut="paste">Dán</button>
+            <button type="button" data-shortcut="undo" aria-label="Hoàn tác">↶</button>
+            <button type="button" data-shortcut="redo" aria-label="Làm lại">↷</button>
+          </div>
+          <div class="shortcut-row" data-key-row="keys" hidden>
+            <button type="button" data-shortcut="escape">Esc</button>
+            <button type="button" data-shortcut="tab">Tab</button>
+            <button type="button" data-shortcut="backspace" aria-label="Xóa lùi">⌫</button>
+            <button type="button" data-shortcut="del">Del</button>
+            <button type="button" data-shortcut="enter">Enter</button>
+          </div>
+          <p id="typing-feedback" class="typing-feedback" role="status" hidden></p>
+        </div>
       </section>
 
       <p id="safety-warning" class="warning safety-warning">Chỉ kết nối với máy bạn sở hữu hoặc người bạn tin cậy.</p>

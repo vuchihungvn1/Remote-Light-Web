@@ -1,4 +1,4 @@
-const CACHE = 'remote-light-shell-v11';
+const CACHE = 'remote-light-shell-v13';
 const HOME = new URL('./index.html', self.registration.scope).href;
 const ASSET_PATH = new URL('./assets/', self.registration.scope).pathname;
 
