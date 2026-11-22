@@ -322,15 +322,15 @@ async function measureTwoFingerScroll(page, context, host, supported) {
     console.log(JSON.stringify({ recoveryMs: Math.round(performance.now() - recoveredAt), pairClaims: claims, phoneConnections }));
     assert.equal(claims, 1);
     assert.ok(phoneConnections >= 2);
-    assert.equal(await phone.locator('body').getAttribute('data-controlling'), 'false');
+    await phone.waitForFunction(() => document.body.getAttribute('data-controlling') === 'true');
     await grant();
     await measure('after switch (45ms delay, 8ms jitter, 0.3% loss)', phone, context, receiver);
     assert.match(await phone.locator('#pad-gestures').textContent(), /Cuộn bằng hai ngón/);
     await measureTwoFingerScroll(phone, context, receiver, true);
-    await phone.locator('#control-settings summary').click();
+    await phone.locator('#control-settings summary').first().click();
     await phone.locator('#pointer-speed').selectOption('2.2');
     assert.equal(await phone.evaluate(() => localStorage.getItem('rl_pointer_speed')), '2.2');
-    await phone.locator('#control-settings summary').click();
+    await phone.locator('#control-settings summary').first().click();
     await measure('fast pointer speed', phone, context, receiver, 350, 423);
     assert.deepEqual(errors, []);
     assert.deepEqual(await receiver.evaluate(() => window.receiver.errors), []);
