@@ -8,8 +8,8 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-DAdBe1P2.js" integrity="sha384-/qmdfU+v7bTtt2L/QxeYp/ZYwYgC0z6esEd54q4KVVnag7xiHFduE6IMwaJ4RbNB" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-D877r4ui.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DUiQ-M_C.css">
+    <script type="module" crossorigin src="./assets/index-B7CdLTRj.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Bx9Eo41V.css">
   </head>
   <body>
     <main class="app-shell">
@@ -118,7 +118,15 @@
         </div>
         <a id="switch-computer" href="./">Đổi máy · Quét QR / nhập mã</a>
         <button type="button" id="share-screen" class="secondary" hidden>Chia sẻ màn hình</button>
-        <canvas id="screen-view" aria-label="Màn hình chính của PC" hidden></canvas>
+        <section id="screen-workspace" hidden>
+          <div id="screen-tools">
+            <button type="button" class="secondary" id="screen-expand" aria-pressed="false">Toàn màn hình</button>
+            <button type="button" class="secondary" id="screen-zoom" aria-pressed="false">2×</button>
+            <button type="button" class="secondary" id="screen-right" aria-pressed="false">Chuột phải</button>
+            <button type="button" class="secondary" id="screen-end">Dừng</button>
+          </div>
+          <div id="screen-scroll"><canvas id="screen-view" aria-label="Màn hình chính của PC" hidden></canvas></div>
+        </section>
         <section id="pad" aria-label="Touchpad điều khiển chuột" tabindex="0">
           <span>Di chuyển ngón tay để rê chuột</span>
           <small id="pad-gestures">Chạm để bấm · Giữ để kéo</small>
@@ -131,6 +139,10 @@
           <details id="control-settings">
             <summary>Cài đặt</summary>
             <div class="settings-menu">
+              <details id="presentation" hidden><summary id="presentation-title">Trình chiếu</summary>
+                <div class="presentation-keys"><button type="button" data-slide="start">Bắt đầu</button><button type="button" data-slide="end">Kết thúc</button>
+                <button type="button" data-slide="prev">Trang trước</button><button type="button" data-slide="next">Trang sau</button></div>
+              </details>
               <label class="speed-setting" for="pointer-speed">
                 <span id="pointer-speed-label">Tốc độ chuột</span>
                 <select id="pointer-speed">
