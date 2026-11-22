@@ -186,9 +186,10 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
   let readyAnnounced = false;
   const pendingCandidates = [];
   const channels = {};
-  const sendFrame = (name, frame) => {
+  const sendFrame = (name, frame, release = false) => {
     const channel = channels[name];
-    if (!inputAuthorized || channel?.readyState !== 'open' || channel.bufferedAmount + frame.byteLength > MAX_BUFFERED_BYTES[name]) return false;
+    const limit = MAX_BUFFERED_BYTES[name] + (release ? 1024 : 0);
+    if (!inputAuthorized || channel?.readyState !== 'open' || channel.bufferedAmount + frame.byteLength > limit) return false;
     try {
       channel.send(frame);
       return true;
@@ -232,6 +233,7 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
     isReady,
     sendInput: frame => sendFrame('fast', frame),
     sendReliable: frame => sendFrame('reliable', frame),
+    sendRelease: frame => sendFrame('reliable', frame, true),
     sendMeta: frame => sendFrame('meta', frame),
     sendBulk: frame => sendFrame('bulk', frame),
     authorizeInput() {
