@@ -184,6 +184,8 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
   let heartbeatCounter = 0;
   let remoteDescriptionSet = false;
   let readyAnnounced = false;
+  let closed = false;
+  const reopenTimers = new Map();
   const pendingCandidates = [];
   const channels = {};
   const sendFrame = (name, frame, release = false) => {
@@ -209,11 +211,27 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
       readyAnnounced = false;
     }
   };
+  function scheduleChannelReopen(name, oldChannel) {
+    if (closed || options.initiator === false || reopenTimers.has(name)) return;
+    const timer = setTimeout(() => {
+      reopenTimers.delete(name);
+      if (closed || channels[name] !== oldChannel || peer.signalingState === 'closed') return;
+      try {
+        configureChannel(name, peer.createDataChannel(`rl-${name}`, CHANNELS[name]));
+      } catch {
+        scheduleChannelReopen(name, oldChannel);
+      }
+    }, 500);
+    reopenTimers.set(name, timer);
+  }
   const configureChannel = (name, channel) => {
     channel.binaryType = 'arraybuffer';
     channels[name] = channel;
     channel.addEventListener('open', notifyReady);
-    channel.addEventListener('close', notifyReady);
+    channel.addEventListener('close', () => {
+      notifyReady();
+      if (channels[name] === channel) scheduleChannelReopen(name, channel);
+    });
     notifyReady();
   };
   if (options.initiator !== false) {
@@ -269,6 +287,9 @@ export function createRemoteTransport(onState = () => {}, onSignal = () => {}, o
       await peer.addIceCandidate(candidate);
     },
     close() {
+      closed = true;
+      for (const timer of reopenTimers.values()) clearTimeout(timer);
+      reopenTimers.clear();
       clearInterval(heartbeatTimer);
       heartbeatTimer = undefined;
       inputAuthorized = false;
