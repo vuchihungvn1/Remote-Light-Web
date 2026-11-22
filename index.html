@@ -8,7 +8,7 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-DAdBe1P2.js" integrity="sha384-/qmdfU+v7bTtt2L/QxeYp/ZYwYgC0z6esEd54q4KVVnag7xiHFduE6IMwaJ4RbNB" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-gD2mVRbN.js"></script>
+    <script type="module" crossorigin src="./assets/index-BqAvuoHa.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-Bx9Eo41V.css">
   </head>
   <body>
@@ -104,6 +104,7 @@
         <button id="scan-qr" class="primary" type="button">Quét mã QR</button>
         <dialog id="scanner" aria-labelledby="scan-title"><div><h2 id="scan-title">Quét mã QR</h2><video muted playsinline style="display:block;width:100%;max-height:48dvh;object-fit:contain"></video><p role="status"></p><button type="button" class="secondary" id="scan-close">Đóng</button></div></dialog>
 
+        <details id="screen-entry"><summary>Màn hình PC · Pro Max</summary><p>Quét QR hoặc nhập mã bên dưới. Khi PC chấp thuận, chọn “Xem và điều khiển màn hình PC”, rồi chạm trực tiếp vào vị trí cần bấm.</p></details>
         <form id="pair-form" class="pair-form">
           <label for="pair-code-input">Mã ghép đôi<input id="pair-code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000"></label>
           <button id="connect-phone" class="primary" type="submit">Kết nối</button>
@@ -117,7 +118,7 @@
           <button id="authorize" class="primary" type="button" aria-pressed="false" disabled>Cho phép điều khiển</button>
         </div>
         <a id="switch-computer" href="./">Đổi máy · Quét QR / nhập mã</a>
-        <button type="button" id="share-screen" class="secondary" hidden>Chia sẻ màn hình</button><small id="screen-hint" hidden>Hãy cấp quyền điều khiển và bật chia sẻ màn hình trong app Windows.</small>
+        <button type="button" id="share-screen" class="secondary">Xem và điều khiển màn hình PC</button><small id="screen-hint" hidden>Hãy cấp quyền điều khiển và bật chia sẻ màn hình trong app Windows.</small>
         <section id="screen-workspace" hidden>
           <div id="screen-tools">
             <button type="button" class="secondary" id="screen-expand" aria-pressed="false">Toàn màn hình</button>
