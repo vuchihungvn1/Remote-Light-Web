@@ -8,8 +8,8 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-DAdBe1P2.js" integrity="sha384-/qmdfU+v7bTtt2L/QxeYp/ZYwYgC0z6esEd54q4KVVnag7xiHFduE6IMwaJ4RbNB" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-BcCj_u-t.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CjQMDJJh.css">
+    <script type="module" crossorigin src="./assets/index-Ca9glnkn.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-MDxoetDj.css">
   </head>
   <body>
     <main class="app-shell">
@@ -121,11 +121,13 @@
         <button type="button" id="share-screen" class="secondary">Xem và điều khiển màn hình PC</button><small id="screen-hint" hidden>Hãy cấp quyền điều khiển và bật chia sẻ màn hình trong app Windows.</small>
         <section id="screen-workspace" hidden>
           <div id="screen-tools">
+            <button type="button" class="secondary" id="screen-tools-toggle" aria-label="Công cụ" aria-expanded="false">⋯</button>
+            <button type="button" class="secondary" id="screen-keyboard">Bàn phím</button>
             <button type="button" class="secondary" id="screen-expand" aria-pressed="false">Toàn màn hình</button>
             <button type="button" class="secondary" id="screen-zoom" aria-pressed="false">2×</button>
             <select id="screen-action" aria-label="Thao tác khi chạm màn hình PC">
               <option value="left">Nhấp trái</option><option value="right">Nhấp phải</option><option value="double">Nhấp đúp</option>
-              <option value="up">Cuộn lên</option><option value="down">Cuộn xuống</option>
+              <option value="drag">Kéo thả</option><option value="up">Cuộn lên</option><option value="down">Cuộn xuống</option>
             </select>
             <button type="button" class="secondary" id="screen-end">Dừng</button>
           </div>
