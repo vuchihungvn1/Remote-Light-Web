@@ -8,8 +8,8 @@
     <link rel="manifest" href="./assets/manifest-lpHubafy.webmanifest">
     <link rel="modulepreload" href="./assets/rtc-DAdBe1P2.js" integrity="sha384-/qmdfU+v7bTtt2L/QxeYp/ZYwYgC0z6esEd54q4KVVnag7xiHFduE6IMwaJ4RbNB" crossorigin="anonymous">
     <title>Remote Light · Điều khiển</title>
-    <script type="module" crossorigin src="./assets/index-C9DOm7tt.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-C_eAgJzk.css">
+    <script type="module" crossorigin src="./assets/index-D877r4ui.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DUiQ-M_C.css">
   </head>
   <body>
     <main class="app-shell">
@@ -33,7 +33,7 @@
           <label class="compact-setting" for="theme-select">Giao diện
             <select id="theme-select"><option value="dark">Tối</option><option value="light">Sáng</option><option value="system">Theo hệ thống</option></select>
           </label>
-          <a id="account-download" href="https://github.com/vuchihungvn1/Remote-Light-Web/raw/19047c3592bfb1f5e0f07901a37d74bcba61b77a/RemoteLight-Windows-2.3.1.zip" download>Tải bản Windows 2.3.1 (.zip)</a>
+          <a id="account-download" href="https://github.com/vuchihungvn1/Remote-Light-Web/raw/46c4697ad88405ad2ec387cebdb365eb1149bea0/RemoteLight-Windows-2.3.1.zip" download>Tải bản Windows 2.3.1 (.zip)</a>
           <button id="show-membership" class="secondary" type="button">Gói tài khoản</button>
           <button id="sign-out" class="secondary" type="button">Đăng xuất</button>
         </section>
@@ -117,6 +117,8 @@
           <button id="authorize" class="primary" type="button" aria-pressed="false" disabled>Cho phép điều khiển</button>
         </div>
         <a id="switch-computer" href="./">Đổi máy · Quét QR / nhập mã</a>
+        <button type="button" id="share-screen" class="secondary" hidden>Chia sẻ màn hình</button>
+        <canvas id="screen-view" aria-label="Màn hình chính của PC" hidden></canvas>
         <section id="pad" aria-label="Touchpad điều khiển chuột" tabindex="0">
           <span>Di chuyển ngón tay để rê chuột</span>
           <small id="pad-gestures">Chạm để bấm · Giữ để kéo</small>
@@ -138,7 +140,7 @@
                 </select>
               </label>
               <div id="pointer-profiles" hidden><button class="secondary" id="save-account-speed" type="button">Lưu tốc độ cho tài khoản</button><button class="secondary" id="save-pc-speed" type="button" hidden>Lưu riêng cho PC này</button><small role="status"></small></div>
-          <a id="settings-download" href="https://github.com/vuchihungvn1/Remote-Light-Web/raw/19047c3592bfb1f5e0f07901a37d74bcba61b77a/RemoteLight-Windows-2.3.1.zip" download>Tải bản Windows 2.3.1 (.zip)</a>
+          <a id="settings-download" href="https://github.com/vuchihungvn1/Remote-Light-Web/raw/46c4697ad88405ad2ec387cebdb365eb1149bea0/RemoteLight-Windows-2.3.1.zip" download>Tải bản Windows 2.3.1 (.zip)</a>
               <a class="new-pair" href="./">Ghép nối máy khác</a>
             </div>
           </details>

@@ -260,7 +260,7 @@ async function measureTwoFingerScroll(page, context, host, supported) {
     await phone.goto(base + '/?pair=' + pairCode + '&lang=vi', { waitUntil: 'domcontentloaded' });
     const ready = () => phone.waitForFunction(() => !document.querySelector('#authorize').disabled);
     const grant = async () => {
-      await phone.locator('#authorize').click();
+      if ((await phone.locator('#authorize').getAttribute('aria-pressed')) !== 'true') await phone.locator('#authorize').click();
       await receiver.waitForFunction(() => window.receiver.granted);
     };
     await ready();
@@ -274,7 +274,7 @@ async function measureTwoFingerScroll(page, context, host, supported) {
       const calibrated = await waitUntil(() => output.includes('wheel:120'), 'the Windows probe calibration event')
         .then(() => true, () => false);
       output = '';
-      await phone.locator('#authorize').click();
+      if ((await phone.locator('#authorize').getAttribute('aria-pressed')) !== 'true') await phone.locator('#authorize').click();
       await delay(350);
       await scrollSwipe(phone, context, 24);
       const sentWheel = await phone.evaluate(() => window.sentWheel);
